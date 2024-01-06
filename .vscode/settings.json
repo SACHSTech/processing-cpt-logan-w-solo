@@ -1,0 +1,11 @@
+{
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "/Users/loganmads29/Desktop/ICS3U/core.jar"
+        ],
+        "exclude": [
+            "lib/repl_core.jar"
+        ]
+    }
+}

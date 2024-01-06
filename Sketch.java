@@ -1,8 +1,18 @@
 import processing.core.PApplet;
+import processing.core.PImage;
 
 public class Sketch extends PApplet {
 	
+  PImage imgAlien; 
+  PImage imgBackground; 
+  PImage imgShip; 
 	
+  float fltAlienX = 50; 
+  float fltAlienY = 50; 
+
+  float fltShipX = 175;
+  float fltShipY = 300; 
+
   /**
    * Called once at the beginning of execution, put your size all in this method
    */
@@ -16,21 +26,30 @@ public class Sketch extends PApplet {
    * values here i.e background, stroke, fill etc.
    */
   public void setup() {
-    background(210, 255, 173);
-  }
+
+    imgAlien = loadImage("Space Invaders Alien.png");
+    imgAlien.resize(35, 35);
+
+    imgShip = loadImage("Ship.png"); 
+    imgShip.resize(50, 50);
+
+    imgBackground = loadImage("background.png");
+    imgBackground.resize(700, 400);
+    }
+
 
   /**
    * Called repeatedly, anything drawn to the screen goes here
    */
   public void draw() {
 	  
-	// sample code, delete this stuff
-    stroke(128);
-    line(150, 25, 270, 350);  
+    image(imgBackground, 0, 0);
+	  image(imgAlien, fltAlienX, fltAlienY);
+    image(imgShip, fltShipX, fltShipY); 
 
-    stroke(255);
-    line(50, 125, 70, 50);  
   }
+}
+
+
   
   // define other methods down here.
-}
