@@ -10,15 +10,25 @@ public class Sketch extends PApplet {
   PImage imgAlien; 
   PImage imgBackground; 
   PImage imgShip; 
+  PImage imgLives; 
  
   int intAlienRows = 5;
   int intAliensPerRow = 8;
   float fltAlienSpacing = 35;
 
+  int intNumLives = 3;
+
+  float fltShipX = 175;
+  float fltShipY = 350; 
+
   float[][] fltAlienX = new float[intAlienRows][intAliensPerRow];
   float[][] fltAlienY = new float[intAlienRows][intAliensPerRow];
 
   boolean[][] blnAlienAlive = new boolean[intAlienRows][intAliensPerRow];
+
+  // Boolean variables to track keyboard input
+  boolean blnLeft = false;
+  boolean blnRight = false;
 
   /**
    * Called once at the beginning of execution, size call in this method
@@ -39,10 +49,13 @@ public class Sketch extends PApplet {
     imgShip = loadImage("Ship.png"); 
     imgShip.resize(50, 50);
 
+    imgLives = loadImage("Lives.png");
+    imgLives.resize(25, 25);
+
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
 
-     // Initialize alien positions in rows
+    // Initialize alien positions in rows
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
         fltAlienX[intRow][intCol] = intCol * fltAlienSpacing + 60;
@@ -59,8 +72,11 @@ public class Sketch extends PApplet {
 	  
     image(imgBackground, 0, 0);
 
-    drawShip(175, 300);
+    drawLivesIndicator();
 
+    drawShip();
+
+    // Draw the aliens 
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
         if (blnAlienAlive[intRow][intCol]) {
@@ -68,14 +84,46 @@ public class Sketch extends PApplet {
         }
       }
     }
+
+    // Ship movement based on keyboard input
+    if (blnLeft) {
+      fltShipX--;
+    }
+    if (blnRight) {
+      fltShipX++;
+    }
+  }
+
+  /**
+   * Called when a key is pressed. Handles keyboard input for controlling the ship.
+   */
+  public void keyPressed() {
+    // Control player movement with AD keys
+    if (key == 'a') {
+      blnLeft = true;
+    } 
+    else if (key == 'd') {
+      blnRight = true;
+    }
+  }
+
+  /**
+   * Called when a key is released. Handles keyboard input for controlling the player.
+   */
+  public void keyReleased() {
+    // Release player movement based on key release 
+    if (key == 'a') {
+      blnLeft = false;
+    } 
+    else if (key == 'd') {
+      blnRight = false;
+    }
   }
 
   /**
    * Draws a ship on the screen at the initialized coordinates.
-   * @param fltShipX The X-coordinate of the ship.
-   * @param fltShipY The Y-coordinate of the ship.
    */
-  public void drawShip(float fltShipX, float fltShipY) {
+  public void drawShip() {
     image(imgShip, fltShipX, fltShipY);
   }
 
@@ -88,4 +136,18 @@ public class Sketch extends PApplet {
     image(imgAlien, fltAlienX, fltAlienY);
   }
 
+  /**
+   * Draws the player lives indicator on the screen. 
+   */
+  public void drawLivesIndicator() {
+    // Display "LIVES" to the left of the lives
+    fill(255); 
+    textSize(20); 
+    textAlign(RIGHT); 
+    text("LIVES", width - 130, 30);
+
+    for (int i = 0; i < intNumLives; i++) {
+      image(imgLives, width - 40 * (i + 1), 10);
+    }
+  }
 }
