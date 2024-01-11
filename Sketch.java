@@ -21,6 +21,9 @@ public class Sketch extends PApplet {
   float fltShipX = 175;
   float fltShipY = 350; 
 
+  float fltShipSpeed = 3;
+
+
   float[][] fltAlienX = new float[intAlienRows][intAliensPerRow];
   float[][] fltAlienY = new float[intAlienRows][intAliensPerRow];
 
@@ -87,11 +90,13 @@ public class Sketch extends PApplet {
 
     // Ship movement based on keyboard input
     if (blnLeft) {
-      fltShipX--;
+        fltShipX -= fltShipSpeed;
     }
     if (blnRight) {
-      fltShipX++;
+        fltShipX += fltShipSpeed;
     }
+
+
   }
 
   /**
@@ -125,6 +130,9 @@ public class Sketch extends PApplet {
    */
   public void drawShip() {
     image(imgShip, fltShipX, fltShipY);
+    
+    fltShipX = constrain(fltShipX, 0, width - 50 );
+    fltShipY = constrain(fltShipY, 0, height - 50);
   }
 
   /**
