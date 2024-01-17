@@ -11,8 +11,9 @@ public class Sketch extends PApplet {
   PImage imgBackground; 
   PImage imgShip; 
   PImage imgLives; 
+  PImage imgMeteor; 
  
-  int intAlienRows = 5;
+  int intAlienRows = 4;
   int intAliensPerRow = 8;
   float fltAlienSpacing = 35;
 
@@ -23,7 +24,6 @@ public class Sketch extends PApplet {
 
   float fltShipSpeed = 3;
 
-
   float[][] fltAlienX = new float[intAlienRows][intAliensPerRow];
   float[][] fltAlienY = new float[intAlienRows][intAliensPerRow];
 
@@ -32,6 +32,10 @@ public class Sketch extends PApplet {
   // Boolean variables to track keyboard input
   boolean blnLeft = false;
   boolean blnRight = false;
+
+  boolean blnShoot = false;
+  float fltBulletX;
+  float fltBulletY;
 
   /**
    * Called once at the beginning of execution, size call in this method
@@ -55,8 +59,12 @@ public class Sketch extends PApplet {
     imgLives = loadImage("Lives.png");
     imgLives.resize(25, 25);
 
+    imgMeteor = loadImage("meteor.png");
+    imgMeteor.resize(50, 50); 
+
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
+
 
     // Initialize alien positions in rows
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
@@ -76,8 +84,8 @@ public class Sketch extends PApplet {
     image(imgBackground, 0, 0);
 
     drawLivesIndicator();
-
     drawShip();
+    drawMeteor();
 
     // Draw the aliens 
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
@@ -96,9 +104,12 @@ public class Sketch extends PApplet {
         fltShipX += fltShipSpeed;
     }
 
-
+    if (blnShoot){
+      drawBullet(fltBulletX, fltBulletY);
+      fltBulletY -= 5;
+    }
   }
-
+  
   /**
    * Called when a key is pressed. Handles keyboard input for controlling the ship.
    */
@@ -109,6 +120,12 @@ public class Sketch extends PApplet {
     } 
     else if (key == 'd') {
       blnRight = true;
+    }
+
+    if (key == ' ') {
+      blnShoot = true;
+      fltBulletX = fltShipX + 22; 
+      fltBulletY = fltShipY;     
     }
   }
 
@@ -145,7 +162,7 @@ public class Sketch extends PApplet {
   }
 
   /**
-   * Draws the player lives indicator on the screen. 
+   * Calculations for drawing the player lives indicator on the screen. 
    */
   public void drawLivesIndicator() {
     // Display "LIVES" to the left of the lives
@@ -158,4 +175,26 @@ public class Sketch extends PApplet {
       image(imgLives, width - 40 * (i + 1), 10);
     }
   }
+
+  /**
+   * Calculations for drawing the meteors to the screen. 
+   */
+  public void drawMeteor() {
+    for(int i = 25; i <= width; i += 100){
+      image(imgMeteor, i, 275); 
+    }
+  }
+
+  /**
+   * Calculations for drawing the bullets to the screen. 
+   * @param fltBulletX the X value of the bullet.
+   * @param fltBulletY the Y value of the bullet.
+   */
+  public void drawBullet(float fltBulletX, float fltBulletY) {
+    noStroke();
+    fill(255); 
+    rect(fltBulletX, fltBulletY, 3, 20);
+  }
+
+
 }
