@@ -18,11 +18,12 @@ public class Sketch extends PApplet {
   float fltAlienSpacing = 35;
 
   int intNumLives = 3;
+  int intScore = 0; 
 
   float fltShipX = 175;
   float fltShipY = 350; 
 
-  float fltShipSpeed = 3;
+  float fltShipSpeed = 4;
 
   float[][] fltAlienX = new float[intAlienRows][intAliensPerRow];
   float[][] fltAlienY = new float[intAlienRows][intAliensPerRow];
@@ -60,7 +61,7 @@ public class Sketch extends PApplet {
     imgLives.resize(25, 25);
 
     imgMeteor = loadImage("meteor.png");
-    imgMeteor.resize(50, 50); 
+    imgMeteor.resize(60, 50); 
 
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
@@ -86,15 +87,23 @@ public class Sketch extends PApplet {
     drawLivesIndicator();
     drawShip();
     drawMeteor();
+    drawScore();
 
-    // Draw the aliens 
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-        if (blnAlienAlive[intRow][intCol]) {
-          drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
-        }
+          if (blnAlienAlive[intRow][intCol]) {
+              drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
+
+              // Check for collision with bullet
+              if (blnShoot && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
+                  fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
+                  blnAlienAlive[intRow][intCol] = false; 
+                  blnShoot = false; 
+                  intScore += 20;
+              }
+          }
       }
-    }
+  }
 
     // Ship movement based on keyboard input
     if (blnLeft) {
@@ -106,10 +115,14 @@ public class Sketch extends PApplet {
 
     if (blnShoot){
       drawBullet(fltBulletX, fltBulletY);
-      fltBulletY -= 5;
+      fltBulletY -= 10;
+      if (fltBulletY == 320 && fltBulletX >= 25 && fltBulletX <=75 || fltBulletY == 320 && fltBulletX >= 125 && fltBulletX <= 175 ||
+      fltBulletY == 320 && fltBulletX >= 225 && fltBulletX <=275 || fltBulletY == 320 && fltBulletX >= 325 && fltBulletX <=375) {
+        blnShoot = false; 
+      }
     }
   }
-  
+
   /**
    * Called when a key is pressed. Handles keyboard input for controlling the ship.
    */
@@ -177,6 +190,22 @@ public class Sketch extends PApplet {
   }
 
   /**
+   * Calculations for drawing the score indicator on the screen. 
+   */
+  public void drawScore() {
+    // Display "SCORE" to the left of the lives
+    fill(255); 
+    textSize(20); 
+    text("SCORE", width - 320, 30);
+    
+    fill(255);
+    textSize(20);
+    text(Integer.toString(intScore), width - 270, 30);
+  }
+
+  
+
+  /**
    * Calculations for drawing the meteors to the screen. 
    */
   public void drawMeteor() {
@@ -194,7 +223,12 @@ public class Sketch extends PApplet {
     noStroke();
     fill(255); 
     rect(fltBulletX, fltBulletY, 3, 20);
+    
   }
 
 
 }
+
+//added meteor detection
+//added score count 
+//added collision detection with bullets and aliens
