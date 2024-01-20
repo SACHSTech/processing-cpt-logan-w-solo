@@ -12,6 +12,7 @@ public class Sketch extends PApplet {
   PImage imgShip; 
   PImage imgLives; 
   PImage imgMeteor; 
+  PImage imgStartScreen;
  
   int intAlienRows = 4;
   int intAliensPerRow = 8;
@@ -32,9 +33,12 @@ public class Sketch extends PApplet {
 
   boolean[][] blnAlienAlive = new boolean[intAlienRows][intAliensPerRow];
 
+  boolean blnGameStart = false; 
+
   // Boolean variables to track keyboard input
   boolean blnLeft = false;
   boolean blnRight = false;
+  boolean blnStart = true; 
 
   boolean blnShoot = false;
   float fltBulletX;
@@ -65,6 +69,9 @@ public class Sketch extends PApplet {
     imgMeteor = loadImage("meteor.png");
     imgMeteor.resize(60, 50); 
 
+    imgStartScreen = loadImage("startScreen.png");
+    imgStartScreen.resize(500, 410); 
+
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
 
@@ -82,30 +89,34 @@ public class Sketch extends PApplet {
    * Called repeatedly, anything drawn to the screen goes here
    */
   public void draw() {
-	  
-    image(imgBackground, 0, 0);
-
+    if(blnStart == true){
+      startScreen(0, -10);
+    }
+    else{
+      image(imgBackground, 0, 0);
+  
     drawLivesIndicator();
-    drawShip();
+    drawShip(fltShipX, fltShipY);
     drawMeteor();
     drawScore();
     moveAliens();
 
-    for (int intRow = 0; intRow < intAlienRows; intRow++) {
-      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+      for (int intRow = 0; intRow < intAlienRows; intRow++) {
+        for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
           if (blnAlienAlive[intRow][intCol]) {
-              drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
+            drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
 
-              // Check for collision with bullet
-              if (blnShoot && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
-                  fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
-                  blnAlienAlive[intRow][intCol] = false; 
-                  blnShoot = false; 
-                  intScore += 20;
-              }
+            // Check for collision with bullet
+            if (blnShoot && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
+              fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
+              blnAlienAlive[intRow][intCol] = false; 
+              blnShoot = false; 
+              intScore += 20;
+            }
           }
+        }
       }
-  }
+    }
 
     // Ship movement based on keyboard input
     if (blnLeft) {
@@ -114,7 +125,6 @@ public class Sketch extends PApplet {
     if (blnRight) {
         fltShipX += fltShipSpeed;
     }
-
     if (blnShoot){
       drawBullet(fltBulletX, fltBulletY);
       fltBulletY -= 10;
@@ -130,16 +140,17 @@ public class Sketch extends PApplet {
    * If the aliens move near the edge of the screen, the direction changes.  
    */
   public void moveAliens() {
-      for (int intRow = 0; intRow < intAlienRows; intRow++) {
-          for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-              if (blnAlienDirection) {
-                  fltAlienX[intRow][intCol] += fltAlienMoveDistance; // Move right
-              } else {
-                  fltAlienX[intRow][intCol] -= fltAlienMoveDistance; // Move left
-              }
-          }
+    for (int intRow = 0; intRow < intAlienRows; intRow++){
+      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        if (blnAlienDirection){
+          fltAlienX[intRow][intCol] += fltAlienMoveDistance; // Move right
+        } 
+        else {
+          fltAlienX[intRow][intCol] -= fltAlienMoveDistance; // Move left
+        }
       }
-      alienBoundaries();
+    }
+    alienBoundaries();
   }
   
   /**
@@ -162,18 +173,27 @@ public class Sketch extends PApplet {
    */
   public void keyPressed() {
     // Control player movement with AD keys
-    if (key == 'a') {
+    if(key == 'a') {
       blnLeft = true;
     } 
-    else if (key == 'd') {
+    else if(key == 'd') {
       blnRight = true;
     }
 
-    if (key == ' ') {
-      blnShoot = true;
-      fltBulletX = fltShipX + 22; 
-      fltBulletY = fltShipY;     
+    if(key == ' '){ 
+    if(!blnGameStart) {
+      blnGameStart = true;
+    } 
+    else{
+      blnShoot = true; 
+      fltBulletX = fltShipX + 22;
+      fltBulletY = fltShipY;
     }
+    }
+
+      if (key == ' '){
+        blnStart = false; 
+      }
   }
 
   /**
@@ -181,18 +201,20 @@ public class Sketch extends PApplet {
    */
   public void keyReleased() {
     // Release player movement based on key release 
-    if (key == 'a') {
+    if(key == 'a') {
       blnLeft = false;
     } 
-    else if (key == 'd') {
+    else if(key == 'd') {
       blnRight = false;
     }
   }
 
   /**
    * Draws a ship on the screen at the initialized coordinates.
+   * @param fltShipX the X value of the ship.
+   * @param fltShipY the Y value of the ship. 
    */
-  public void drawShip() {
+  public void drawShip(float fltShipX, float fltShipY) {
     image(imgShip, fltShipX, fltShipY);
     
     fltShipX = constrain(fltShipX, 0, width - 50 );
@@ -256,7 +278,16 @@ public class Sketch extends PApplet {
     noStroke();
     fill(255); 
     rect(fltBulletX, fltBulletY, 3, 20);
-    
+  }
+
+  /**
+   * Draws the start screen. 
+   * @param fltScreenX the X value of the start screen.
+   * @param fltScreenY the Y value of the start screen. 
+   */
+  public void startScreen(float fltScreenX, float fltScreenY){
+    image(imgStartScreen, fltScreenX, fltScreenY);
+
   }
 
 }
