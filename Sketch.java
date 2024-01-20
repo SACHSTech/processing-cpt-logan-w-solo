@@ -16,6 +16,8 @@ public class Sketch extends PApplet {
   int intAlienRows = 4;
   int intAliensPerRow = 8;
   float fltAlienSpacing = 35;
+  float fltAlienMoveDistance = 1;
+  boolean blnAlienDirection = true; 
 
   int intNumLives = 3;
   int intScore = 0; 
@@ -42,7 +44,7 @@ public class Sketch extends PApplet {
    * Called once at the beginning of execution, size call in this method
    */
   public void settings() {
-    size(400, 400);
+    size(500, 400);
   }
 
   /** 
@@ -66,7 +68,6 @@ public class Sketch extends PApplet {
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
 
-
     // Initialize alien positions in rows
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
@@ -88,6 +89,7 @@ public class Sketch extends PApplet {
     drawShip();
     drawMeteor();
     drawScore();
+    moveAliens();
 
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
@@ -119,6 +121,38 @@ public class Sketch extends PApplet {
       if (fltBulletY == 320 && fltBulletX >= 25 && fltBulletX <=75 || fltBulletY == 320 && fltBulletX >= 125 && fltBulletX <= 175 ||
       fltBulletY == 320 && fltBulletX >= 225 && fltBulletX <=275 || fltBulletY == 320 && fltBulletX >= 325 && fltBulletX <=375) {
         blnShoot = false; 
+      }
+    }
+  }
+  
+  /**
+   * Horizontally moves the aliens (right to left) based on their current direction.
+   * If the aliens move near the edge of the screen, the direction changes.  
+   */
+  public void moveAliens() {
+      for (int intRow = 0; intRow < intAlienRows; intRow++) {
+          for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+              if (blnAlienDirection) {
+                  fltAlienX[intRow][intCol] += fltAlienMoveDistance; // Move right
+              } else {
+                  fltAlienX[intRow][intCol] -= fltAlienMoveDistance; // Move left
+              }
+          }
+      }
+      alienBoundaries();
+  }
+  
+  /**
+   * Checks if the aliens reached the horizontal boundaries of the screen.
+   * If an alien goes near the right or left edge, it changes the direction. 
+   */
+  public void alienBoundaries() {
+    for (int intRow = 0; intRow < intAlienRows; intRow++) {
+      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        if (fltAlienX[intRow][intCol] >= 450 - fltAlienMoveDistance || fltAlienX[intRow][intCol] <= fltAlienMoveDistance) {
+          blnAlienDirection = !blnAlienDirection; // Change direction
+          return; 
+        }
       }
     }
   }
@@ -196,14 +230,13 @@ public class Sketch extends PApplet {
     // Display "SCORE" to the left of the lives
     fill(255); 
     textSize(20); 
-    text("SCORE", width - 320, 30);
+    textAlign(LEFT); 
+    text("SCORE", width - 480, 30);
     
     fill(255);
     textSize(20);
-    text(Integer.toString(intScore), width - 270, 30);
+    text(Integer.toString(intScore), width - 390, 30);
   }
-
-  
 
   /**
    * Calculations for drawing the meteors to the screen. 
@@ -226,9 +259,4 @@ public class Sketch extends PApplet {
     
   }
 
-
 }
-
-//added meteor detection
-//added score count 
-//added collision detection with bullets and aliens
