@@ -14,6 +14,7 @@ public class Sketch extends PApplet {
   PImage imgMeteor; 
   PImage imgStartScreen;
   PImage imgEndScreen; 
+  PImage imgWinScreen; 
  
   int intAlienRows = 4;
   int intAliensPerRow = 8;
@@ -39,7 +40,7 @@ public class Sketch extends PApplet {
   // Boolean variables to track keyboard input
   boolean blnLeft = false;
   boolean blnRight = false;
-  boolean blnStart = true; 
+  int intStart = 0; 
 
   boolean blnShoot = false;
   float fltBulletX;
@@ -85,6 +86,9 @@ public class Sketch extends PApplet {
     imgEndScreen = loadImage("endScreen.png");
     imgEndScreen.resize(500, 400); 
 
+    imgWinScreen = loadImage("Win.png");
+    imgWinScreen.resize(500, 400);
+
     // Initialize alien positions in rows
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
@@ -99,7 +103,10 @@ public class Sketch extends PApplet {
    * Called repeatedly, anything drawn to the screen goes here
    */
   public void draw() {
-    if(blnStart == true){
+
+    boolean blnAliensDead = true; 
+
+    if(intStart == 0){
       drawStartScreen(0, -10);
     }
     else{
@@ -111,10 +118,10 @@ public class Sketch extends PApplet {
     drawScore();
     moveAliens();
     
-
       for (int intRow = 0; intRow < intAlienRows; intRow++) {
         for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
           if (blnAlienAlive[intRow][intCol]) {
+            blnAliensDead = false; 
             drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
 
             // Check for collision with bullet
@@ -172,8 +179,12 @@ public class Sketch extends PApplet {
       }
     }
 
-    if (intNumLives == 0){
+    if (intNumLives == 0 && intStart != 0){
       drawEndScreen(0, 0);      
+    }
+
+    if (blnAliensDead && intStart != 0){
+      drawWinScreen(0,0);
     }
   }
   
@@ -291,7 +302,7 @@ public class Sketch extends PApplet {
       }
     }
     if (key == ' '){
-      blnStart = false; 
+      intStart += 1; 
     }
   }
 
@@ -312,8 +323,26 @@ public class Sketch extends PApplet {
       }
     }
     blnGameStart = true;
-    blnStart = true;
+    intStart += 1;
   }
+
+  public void resetGameOnWin() {
+    intNumLives = 3;
+    intScore = 0;
+    fltShipX = 175;
+    fltShipY = 350;
+
+    for (int intRow = 0; intRow < intAlienRows; intRow++) {
+      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        fltAlienX[intRow][intCol] = intCol * fltAlienSpacing + 60;
+        fltAlienY[intRow][intCol] = intRow * fltAlienSpacing + 50;
+        blnAlienAlive[intRow][intCol] = true;
+      }
+    }
+    blnGameStart = true;
+    intStart += 1;
+  }
+
 
   /**
    * Called when a key is released. Handles keyboard input for controlling the player.
@@ -423,6 +452,17 @@ public class Sketch extends PApplet {
     fill(255); 
     textSize(20); 
     text("PRESS SPACEBAR TO PLAY AGAIN", width - 375, 350);
+  }
+
+  public void drawWinScreen(float fltWinX, float fltWinY){
+    image(imgWinScreen, fltWinY, fltWinX); 
+    fill(255); 
+    textSize(20); 
+    text("PRESS SPACEBAR TO PLAY AGAIN", width - 375, 350);
+    
+    if (keyPressed && key == ' '){
+      resetGameOnWin();
+    }
   }
 
 }
