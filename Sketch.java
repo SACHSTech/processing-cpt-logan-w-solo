@@ -13,6 +13,7 @@ public class Sketch extends PApplet {
   PImage imgLives; 
   PImage imgMeteor; 
   PImage imgStartScreen;
+  PImage imgEndScreen; 
  
   int intAlienRows = 4;
   int intAliensPerRow = 8;
@@ -46,10 +47,9 @@ public class Sketch extends PApplet {
 
   boolean blnAliensShouldShoot = true;
 
-  int shootingInterval = 30;  
+  int intShootingInterval = 40;  
   float fltAlienBulletX;
   float fltAlienBulletY;
-
 
   /**
    * Called once at the beginning of execution, size call in this method
@@ -82,6 +82,9 @@ public class Sketch extends PApplet {
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
 
+    imgEndScreen = loadImage("endScreen.png");
+    imgEndScreen.resize(500, 400); 
+
     // Initialize alien positions in rows
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
@@ -97,7 +100,7 @@ public class Sketch extends PApplet {
    */
   public void draw() {
     if(blnStart == true){
-      startScreen(0, -10);
+      drawStartScreen(0, -10);
     }
     else{
       image(imgBackground, 0, 0);
@@ -108,6 +111,7 @@ public class Sketch extends PApplet {
     drawScore();
     moveAliens();
     
+
       for (int intRow = 0; intRow < intAlienRows; intRow++) {
         for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
           if (blnAlienAlive[intRow][intCol]) {
@@ -141,15 +145,14 @@ public class Sketch extends PApplet {
       }
     }
 
-    // Check if it's time for aliens to shoot
-    if (blnAliensShouldShoot && frameCount % shootingInterval == 0) {
-        alienShoot();
+    if (blnAliensShouldShoot && frameCount % intShootingInterval == 0) {
+      alienShoot();
     }
 
     // Check if alien bullet is on the screen and update its position
     if (fltAlienBulletY > 0) {
-        drawAlienBullet(fltAlienBulletX, fltAlienBulletY);
-        fltAlienBulletY += 5;
+      drawAlienBullet(fltAlienBulletX, fltAlienBulletY);
+      fltAlienBulletY += 10;
     }
 
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
@@ -168,6 +171,10 @@ public class Sketch extends PApplet {
         }
       }
     }
+
+    if (intNumLives == 0){
+      drawEndScreen(0, 0);      
+    }
   }
   
   /**
@@ -175,36 +182,38 @@ public class Sketch extends PApplet {
    * If the aliens move near the edge of the screen, the direction changes.  
    */
   public void moveAliens() {
-    boolean shouldMoveDown = false;
+    boolean blnMoveDown = false;
 
-    for (int intRow = 0; intRow < intAlienRows; intRow++) {
-      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-          if (blnAlienDirection) {
-            fltAlienX[intRow][intCol] += fltAlienMoveDistance; // Move right
-          } 
-          else {
-            fltAlienX[intRow][intCol] -= fltAlienMoveDistance; // Move left
-          }
+    for(int intRow = 0; intRow < intAlienRows; intRow++) {
+      for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        if(blnAlienDirection) {
+          fltAlienX[intRow][intCol] += fltAlienMoveDistance; 
+        } 
+        else{
+          fltAlienX[intRow][intCol] -= fltAlienMoveDistance; 
+        }
       }
     }
 
     // Check if aliens reached the horizontal boundaries
-    for (int intRow = 0; intRow < intAlienRows; intRow++) {
-      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-        if (fltAlienX[intRow][intCol] >= 450 - fltAlienMoveDistance || fltAlienX[intRow][intCol] <= fltAlienMoveDistance) {
-          shouldMoveDown = true;
+    for(int intRow = 0; intRow < intAlienRows; intRow++) {
+      for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        if(fltAlienX[intRow][intCol] >= 450 - fltAlienMoveDistance || fltAlienX[intRow][intCol] <= fltAlienMoveDistance) {
+          blnMoveDown = true;
+        }
+        if(fltAlienY[intRow][intCol] >= 350){
+          drawEndScreen(0,0);
         }
       }
     }
 
-  // If the aliens reached the horizontal boundaries, move them down
-    if (shouldMoveDown) {
-      for (int intRow = 0; intRow < intAlienRows; intRow++) {
-        for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-          fltAlienY[intRow][intCol] += 10; // Adjust the value as needed
+    if(blnMoveDown) {
+      for(int intRow = 0; intRow < intAlienRows; intRow++) {
+        for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
+          fltAlienY[intRow][intCol] += 10; 
         }
       }
-        blnAlienDirection = !blnAlienDirection; // Change direction after moving down
+        blnAlienDirection = !blnAlienDirection; 
     }
   }
 
@@ -216,40 +225,48 @@ public class Sketch extends PApplet {
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
         if (fltAlienX[intRow][intCol] >= 450 - fltAlienMoveDistance || fltAlienX[intRow][intCol] <= fltAlienMoveDistance) {
-          blnAlienDirection = !blnAlienDirection; // Change direction
+          blnAlienDirection = !blnAlienDirection; 
           return; 
         }
       }
     }
   }
 
+  /**
+   * Controls when and where the aliens shoot. 
+   */
   public void alienShoot(){
     if (blnGameStart) {
       int randomRow = (int) (random(intAlienRows));
       int randomCol = (int) (random(intAliensPerRow));
 
       if (blnAlienAlive[randomRow][randomCol]) {
-          float fltAlienX2 = fltAlienX[randomRow][randomCol] + 17;
-          float fltAlienY2 = fltAlienY[randomRow][randomCol] + 35;
+        float fltAlienX2 = fltAlienX[randomRow][randomCol] + 17;
+        float fltAlienY2 = fltAlienY[randomRow][randomCol] + 35;
 
-          // Check if the alien is between the meteors
-          if (isBetweenMeteors(fltAlienX2, fltAlienY2)) {
-              fltAlienBulletX = fltAlienX2;
-              fltAlienBulletY = fltAlienY2;
-          }
+        // Check if the alien is between the meteors
+        if (isBetweenMeteors(fltAlienX2, fltAlienY2)) {
+          fltAlienBulletX = fltAlienX2;
+          fltAlienBulletY = fltAlienY2;
+        }
       }
     }
   }
 
-  public boolean isBetweenMeteors(float x, float y) {
+  /**
+   * Checks if the specified cordinates are between the meteors. 
+   * @param fltX the X-coordinate to be checked.
+   * @param fltY the Y-coordinate to be checked. 
+   * @return true if the coordinates are not between the meteors, false otherwise. 
+   */
+  public boolean isBetweenMeteors(float fltX, float fltY) {
     for (int i = 25; i <= width; i += 100) {
-      if (x > i && x < i + 50) {
+      if (fltX > i && fltX < i + 50) {
         return false; 
       }
     }
     return true; 
   }
-
 
   /**                                                       
    * Called when a key is pressed. Handles keyboard input for controlling the ship.
@@ -264,19 +281,38 @@ public class Sketch extends PApplet {
     }
 
     if(key == ' '){ 
-    if(!blnGameStart) {
-      blnGameStart = true;
-    } 
-    else{
-      blnShoot = true; 
-      fltBulletX = fltShipX + 22;
-      fltBulletY = fltShipY;
-    }
-    }
-
-      if (key == ' '){
-        blnStart = false; 
+      if(!blnGameStart) {
+        resetGame();
+      } 
+      else{
+        blnShoot = true; 
+        fltBulletX = fltShipX + 22;
+        fltBulletY = fltShipY;
       }
+    }
+    if (key == ' '){
+      blnStart = false; 
+    }
+  }
+
+  /**
+   * Resets the game once player has lost. 
+   */
+  public void resetGame(){
+    intNumLives = 3;
+    intScore = 0;
+    fltShipX = 175;
+    fltShipY = 350;
+
+    for (int intRow = 0; intRow < intAlienRows; intRow++) {
+      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        fltAlienX[intRow][intCol] = intCol * fltAlienSpacing + 60;
+        fltAlienY[intRow][intCol] = intRow * fltAlienSpacing + 50;
+        blnAlienAlive[intRow][intCol] = true;
+      }
+    }
+    blnGameStart = true;
+    blnStart = true;
   }
 
   /**
@@ -298,10 +334,9 @@ public class Sketch extends PApplet {
    * @param fltShipY the Y value of the ship. 
    */
   public void drawShip(float fltShipX, float fltShipY) {
-    image(imgShip, fltShipX, fltShipY);
-    
-    fltShipX = constrain(fltShipX, 0, width - 50 );
+    fltShipX = constrain(fltShipX, 0, width - 50);
     fltShipY = constrain(fltShipY, 0, height - 50);
+    image(imgShip, fltShipX, fltShipY);
   }
 
   /**
@@ -361,7 +396,6 @@ public class Sketch extends PApplet {
     noStroke();
     fill(255); 
     rect(fltBulletX, fltBulletY, 3, 20);
-
   }
 
   public void drawAlienBullet(float fltAlienBulletX, float fltAlienBulletY){
@@ -375,9 +409,20 @@ public class Sketch extends PApplet {
    * @param fltScreenX the X value of the start screen.
    * @param fltScreenY the Y value of the start screen. 
    */
-  public void startScreen(float fltScreenX, float fltScreenY){
+  public void drawStartScreen(float fltScreenX, float fltScreenY){
     image(imgStartScreen, fltScreenX, fltScreenY);
+  }
 
+  /**
+   * Draws the end screen if player lives reaches 0. 
+   * @param fltEndX the X value of the end screen.
+   * @param fltEndY the Y value of the end screen. 
+   */
+  public void drawEndScreen(float fltEndX, float fltEndY){
+    image(imgEndScreen, fltEndX, fltEndY);
+    fill(255); 
+    textSize(20); 
+    text("PRESS SPACEBAR TO PLAY AGAIN", width - 375, 350);
   }
 
 }
