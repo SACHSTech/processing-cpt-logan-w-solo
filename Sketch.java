@@ -24,26 +24,24 @@ public class Sketch extends PApplet {
   float fltAlienMoveDistance = 1;
   boolean blnAlienDirection = true; 
 
+  int intShootingInterval = 40;  
+  float fltAlienBulletX;
+  float fltAlienBulletY;
+
+  // Declare and initializing arrays
   float[][] fltAlienX = new float[intAlienRows][intAliensPerRow];
   float[][] fltAlienY = new float[intAlienRows][intAliensPerRow];
 
   boolean[][] blnAlienAlive = new boolean[intAlienRows][intAliensPerRow];
  
-  boolean blnAliensShouldShoot = true;
-
-  int intShootingInterval = 40;  
-  float fltAlienBulletX;
-  float fltAlienBulletY;
-
   // Ship variables
   float fltShipX = 175;
   float fltShipY = 350; 
   float fltShipSpeed = 4;
 
-  // Boolean variables to track keyboard input
+  // Variables to track keyboard input
   boolean blnLeft = false;
   boolean blnRight = false;
-  int intStart = 0; 
 
   boolean blnShoot = false;
   float fltBulletX;
@@ -51,9 +49,10 @@ public class Sketch extends PApplet {
 
   // Game variables 
   boolean blnGameStart = false; 
+  boolean blnWinner;
   int intNumLives = 3;
   int intScore = 0; 
-  boolean blnWinner;
+  int intStart = 0; 
   
 
   /**
@@ -82,8 +81,8 @@ public class Sketch extends PApplet {
     imgMeteor = loadImage("meteor.png");
     imgMeteor.resize(60, 50); 
 
-    imgStartScreen = loadImage("startScreen.png");
-    imgStartScreen.resize(500, 410); 
+    imgStartScreen = loadImage("startScreen.jpeg");
+    imgStartScreen.resize(575, 430); 
 
     imgBackground = loadImage("background.png");
     imgBackground.resize(700, 400);
@@ -94,7 +93,7 @@ public class Sketch extends PApplet {
     imgWinScreen = loadImage("Win.png");
     imgWinScreen.resize(500, 400);
 
-    // Initialize alien positions in rows
+    // Nested loop initializes position of aliens in a 2D grid and sets them all alive.
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
         fltAlienX[intRow][intCol] = intCol * fltAlienSpacing + 60;
@@ -117,19 +116,22 @@ public class Sketch extends PApplet {
     else{
       image(imgBackground, 0, 0);
   
-    drawLivesIndicator();
-    drawShip(fltShipX, fltShipY);
-    drawMeteor();
-    drawScore();
-    moveAliens();
+      drawLivesIndicator();
+      drawShip(fltShipX, fltShipY);
+      drawMeteor();
+      drawScore();
+      moveAliens();
     
+      // Iterate through grid of aliens and drawing them if they are alive, check if player wins
       for (int intRow = 0; intRow < intAlienRows; intRow++) {
         for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
           if (blnAlienAlive[intRow][intCol]) {
             blnWinner = false; 
             drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
 
-            // Check for collision with bullet
+            // Checks for collision with bullet of the current alien.
+            // If true, sets that alien position to false and not alive.
+            // Increases player score
             if (blnShoot && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
               fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
               blnAlienAlive[intRow][intCol] = false; 
@@ -148,16 +150,19 @@ public class Sketch extends PApplet {
     if (blnRight) {
         fltShipX += fltShipSpeed;
     }
+    // Checks if player shoots, draws bullet and movement.
     if (blnShoot){
       drawBullet(fltBulletX, fltBulletY);
       fltBulletY -= 10;
+      // Checks if collision with alien, stop drawing bullet.
       if (fltBulletY == 320 && fltBulletX >= 25 && fltBulletX <= 75 || fltBulletY == 320 && fltBulletX >= 125 && fltBulletX <= 175 ||
       fltBulletY == 320 && fltBulletX >= 225 && fltBulletX <= 275 || fltBulletY == 320 && fltBulletX >= 325 && fltBulletX <= 375 || fltBulletY == 320 && fltBulletX >= 425 && fltBulletX <= 475) {
         blnShoot = false; 
       }
     }
 
-    if (blnAliensShouldShoot && frameCount % intShootingInterval == 0) {
+    // When alien will shoot next
+    if (frameCount % intShootingInterval == 0) {
       alienShoot();
     }
 
@@ -167,6 +172,7 @@ public class Sketch extends PApplet {
       fltAlienBulletY += 10;
     }
 
+    // Check if alien bullet collides with ship, decrease number of lives
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
         if (blnAlienAlive[intRow][intCol] && fltAlienBulletY >= fltShipY &&  fltAlienBulletY <= fltShipY + 50 && 
@@ -174,9 +180,11 @@ public class Sketch extends PApplet {
         fltAlienBulletX <= fltShipX + 50) {
          
           intNumLives--;
-         
+
+          // Remove bullet from screen
           fltAlienBulletY = 0;
 
+          // Check if game is over
           if (intNumLives <= 0) {
              blnGameStart = false;
           }
@@ -184,10 +192,12 @@ public class Sketch extends PApplet {
       }
     }
 
+    // Game Over draw end screen
     if (intNumLives == 0 && intStart != 0){
       drawEndScreen(0, 0);      
     }
 
+    // Winner draw win screen
     if (blnWinner == true && intStart != 0){
       drawWinScreen(0,0);
     }
@@ -200,6 +210,7 @@ public class Sketch extends PApplet {
   public void moveAliens() {
     boolean blnMoveDown = false;
 
+    // Move Aliens left or right
     for(int intRow = 0; intRow < intAlienRows; intRow++) {
       for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
         if(blnAlienDirection) {
@@ -211,19 +222,21 @@ public class Sketch extends PApplet {
       }
     }
 
-    // Check if aliens reached the boundaries
+    // Check if aliens reached the boundaries, set flag to move down
     for(int intRow = 0; intRow < intAlienRows; intRow++) {
       for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
         if(fltAlienX[intRow][intCol] >= 450 - fltAlienMoveDistance || fltAlienX[intRow][intCol] <= fltAlienMoveDistance) {
           blnMoveDown = true;
         }
+        //Reached bottom end game
         if(fltAlienY[intRow][intCol] >= 350){
           intNumLives = 0;
         }
       }
     }
 
-    if(blnMoveDown) {
+    // Moves each alien in grid down and changes direction of movement
+    if(blnMoveDown == true) {
       for(int intRow = 0; intRow < intAlienRows; intRow++) {
         for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
           fltAlienY[intRow][intCol] += 10; 
@@ -237,10 +250,12 @@ public class Sketch extends PApplet {
    * Controls when and where the aliens shoot. 
    */
   public void alienShoot(){
-    if (blnGameStart) {
+    // Checks the game is in progress and get random alien
+    if (blnGameStart == true) {
       int intRandomRow = (int) (random(intAlienRows));
       int intRandomCol = (int) (random(intAliensPerRow));
 
+      // Check if selected alien is alive, offset bullet position closer to center of alien
       if (blnAlienAlive[intRandomRow][intRandomCol]) {
         float fltAlienX2 = fltAlienX[intRandomRow][intRandomCol] + 17;
         float fltAlienY2 = fltAlienY[intRandomRow][intRandomCol] + 35;
@@ -315,9 +330,6 @@ public class Sketch extends PApplet {
     blnGameStart = true;
     intStart += 1;
   }
-
-
-
 
   /**
    * Called when a key is released. Handles keyboard input for controlling the player.
@@ -402,6 +414,11 @@ public class Sketch extends PApplet {
     rect(fltBulletX, fltBulletY, 3, 20);
   }
 
+  /**
+   * Calculations for drawing the alien bullets to the screen.
+   * @param fltAlienBulletX the X value of the bullet.
+   * @param fltAlienBulletY the Y value of the bullet. 
+   */
   public void drawAlienBullet(float fltAlienBulletX, float fltAlienBulletY){
     noStroke();
     fill(255, 0, 0);
@@ -415,6 +432,12 @@ public class Sketch extends PApplet {
    */
   public void drawStartScreen(float fltScreenX, float fltScreenY){
     image(imgStartScreen, fltScreenX, fltScreenY);
+    fill(255); 
+    textSize(20); 
+    text("PRESS SPACEBAR TO START", width - 430, height - 50);
+
+    textSize(50); 
+    text("Top Gun", width - 420, height - 175);
   }
 
   /**
@@ -427,18 +450,25 @@ public class Sketch extends PApplet {
     fill(255); 
     textSize(20); 
     text("PRESS SPACEBAR TO PLAY AGAIN", width - 375, 350);
-
+   
+    drawScore(); 
+    
     if (keyPressed && key == ' '){
       resetGame();
     }
   }
 
+   /**
+   * Draws the wing screen. 
+   * @param fltWinX the X value of the win screen.
+   * @param fltWinY the Y value of the win screen. 
+   */
   public void drawWinScreen(float fltWinX, float fltWinY){
     image(imgWinScreen, fltWinY, fltWinX); 
     fill(255); 
     textSize(20); 
     text("PRESS SPACEBAR TO PLAY AGAIN", width - 375, 350);
-    
+
     if (keyPressed && key == ' '){
       resetGame();
     }
