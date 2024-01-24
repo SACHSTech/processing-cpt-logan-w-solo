@@ -132,14 +132,14 @@ public class Sketch extends PApplet {
       for(int intRow = 0; intRow < intAlienRows; intRow++) {
         for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
           if(blnAlienAlive[intRow][intCol] == true) {
-            blnWinner = false; 
+             blnWinner = false; 
             drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
 
             // Checks for collision with bullet of the current alien.
             // If true, sets that alien position to false and not alive.
             // Increases player score
             if (blnShoot == true && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
-              fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
+                fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
               blnAlienAlive[intRow][intCol] = false; 
               blnShoot = false; 
               intScore += 20;
@@ -183,7 +183,7 @@ public class Sketch extends PApplet {
     for(int intRow = 0; intRow < intAlienRows; intRow++) {
       for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
         if(blnAlienAlive[intRow][intCol] && fltAlienBulletY >= fltShipY && fltAlienBulletY <= fltShipY + 50 
-            && fltAlienBulletX >= fltShipX && fltAlienBulletX <= fltShipX + 50) {
+           && fltAlienBulletX >= fltShipX && fltAlienBulletX <= fltShipX + 50) {
           intNumLives--;
           // Remove bullet from screen
           fltAlienBulletY = 0;
@@ -203,7 +203,7 @@ public class Sketch extends PApplet {
     }
 
     // Winner draw win screen
-    if (blnWinner == true && intStart != 0){
+    if(blnWinner == true && intStart != 0){
       drawWinScreen(0,0);
     }
   }
@@ -221,7 +221,7 @@ public class Sketch extends PApplet {
     }
 
     if(key == ' '){ 
-      if(blnGameStart == false || intNumLives <= 0) {
+      if(blnGameStart == false) {
         resetGame();
       } 
       else{
