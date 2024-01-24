@@ -221,7 +221,7 @@ public class Sketch extends PApplet {
     }
 
     if(key == ' '){ 
-      if(blnGameStart == false) {
+      if(blnGameStart == false || intNumLives <= 0) {
         resetGame();
       } 
       else{
