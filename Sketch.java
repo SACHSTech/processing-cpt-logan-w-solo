@@ -169,27 +169,27 @@ public class Sketch extends PApplet {
     }
 
     // When alien will shoot next
-    if (frameCount % intShootingInterval == 0) {
+    if(frameCount % intShootingInterval == 0) {
       alienShoot();
     }
 
     // Check if alien bullet is on the screen and update its position
-    if (fltAlienBulletY > 0) {
+    if(fltAlienBulletY > 0) {
       drawAlienBullet(fltAlienBulletX, fltAlienBulletY);
       fltAlienBulletY += 10;
     }
 
     // Check if alien bullet collides with ship, decrease number of lives
-    for (int intRow = 0; intRow < intAlienRows; intRow++) {
-      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-        if (blnAlienAlive[intRow][intCol] && fltAlienBulletY >= fltShipY && fltAlienBulletY <= fltShipY + 50 
+    for(int intRow = 0; intRow < intAlienRows; intRow++) {
+      for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
+        if(blnAlienAlive[intRow][intCol] && fltAlienBulletY >= fltShipY && fltAlienBulletY <= fltShipY + 50 
             && fltAlienBulletX >= fltShipX && fltAlienBulletX <= fltShipX + 50) {
           intNumLives--;
           // Remove bullet from screen
           fltAlienBulletY = 0;
 
           // Check if game is over
-          if (intNumLives <= 0) {
+          if(intNumLives <= 0) {
             blnGameStart = false;
           }
         }
@@ -446,7 +446,7 @@ public class Sketch extends PApplet {
   }
 
   /**
-   * Draws the end screen if player lives reaches 0. 
+   * Draws the end screen if player lives reaches 0 or if the aliens move too close to the bottom of the screen. 
    * @param fltEndX the X value of the end screen.
    * @param fltEndY the Y value of the end screen. 
    */
@@ -464,7 +464,7 @@ public class Sketch extends PApplet {
   }
 
    /**
-   * Draws the wing screen. 
+   * Draws the win screen. 
    * @param fltWinX the X value of the win screen.
    * @param fltWinY the Y value of the win screen. 
    */
@@ -479,6 +479,11 @@ public class Sketch extends PApplet {
     }
   }
 
+  /**
+   * Plays the audio file "TopGun.wav" in a continuous loop.
+   * Uses the Java Sound API to handle audio playback.
+   * If an error occurs during playback, an error message is printed to the console.
+   */
   public void play1() {
     try{
       AudioInputStream aStream = AudioSystem.getAudioInputStream(new File("TopGun.wav").getAbsoluteFile());
