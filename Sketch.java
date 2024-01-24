@@ -1,8 +1,16 @@
+import java.io.File;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+
 import processing.core.PApplet;
 import processing.core.PImage;
 
 /**
- * ...
+ * The game includes a player-controlled spaceship, aliens, bullets, meteors, and different screens for
+ * start, win, and game over scenarios. Players can move the spaceship, shoot bullets, and try to defeat
+ * the aliens to win the game. The game features multiple lives, a scoring system, and alien movements.
  * @author: L. Wong
  */
 public class Sketch extends PApplet {
@@ -16,7 +24,7 @@ public class Sketch extends PApplet {
   PImage imgStartScreen;
   PImage imgEndScreen; 
   PImage imgWinScreen; 
- 
+
   // Alien variables
   int intAlienRows = 4;
   int intAliensPerRow = 8;
@@ -54,17 +62,15 @@ public class Sketch extends PApplet {
   int intScore = 0; 
   int intStart = 0; 
   
-
   /**
-   * Called once at the beginning of execution, size call in this method
+   * Called once at the beginning of execution.
    */
   public void settings() {
     size(500, 400);
   }
 
   /** 
-   * Called once at the beginning of execution. Add initial set up
-   * values i.e background, stroke, fill etc.
+   * Called once at the beginning of execution. Add initial set up values.
    */
   public void setup() {
 
@@ -94,20 +100,20 @@ public class Sketch extends PApplet {
     imgWinScreen.resize(500, 400);
 
     // Nested loop initializes position of aliens in a 2D grid and sets them all alive.
-    for (int intRow = 0; intRow < intAlienRows; intRow++) {
-      for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
+    for(int intRow = 0; intRow < intAlienRows; intRow++) {
+      for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
         fltAlienX[intRow][intCol] = intCol * fltAlienSpacing + 60;
         fltAlienY[intRow][intCol] = intRow * fltAlienSpacing + 50;
         blnAlienAlive[intRow][intCol] = true;
       }
     }
+    play1();
   }
     
   /**
    * Called repeatedly, anything drawn to the screen goes here
    */
   public void draw() {
-
     blnWinner = true; 
 
     if(intStart == 0){
@@ -123,16 +129,16 @@ public class Sketch extends PApplet {
       moveAliens();
     
       // Iterate through grid of aliens and drawing them if they are alive, check if player wins
-      for (int intRow = 0; intRow < intAlienRows; intRow++) {
-        for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-          if (blnAlienAlive[intRow][intCol]) {
+      for(int intRow = 0; intRow < intAlienRows; intRow++) {
+        for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
+          if(blnAlienAlive[intRow][intCol] == true) {
             blnWinner = false; 
             drawAlien(fltAlienX[intRow][intCol], fltAlienY[intRow][intCol]);
 
             // Checks for collision with bullet of the current alien.
             // If true, sets that alien position to false and not alive.
             // Increases player score
-            if (blnShoot && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
+            if (blnShoot == true && fltBulletY <= fltAlienY[intRow][intCol] + 35 && fltBulletY >= fltAlienY[intRow][intCol] &&
               fltBulletX <= fltAlienX[intRow][intCol] + 35 && fltBulletX >= fltAlienX[intRow][intCol]) {
               blnAlienAlive[intRow][intCol] = false; 
               blnShoot = false; 
@@ -144,19 +150,20 @@ public class Sketch extends PApplet {
     }
 
     // Ship movement based on keyboard input
-    if (blnLeft) {
-        fltShipX -= fltShipSpeed;
+    if(blnLeft == true) {
+      fltShipX -= fltShipSpeed;
     }
-    if (blnRight) {
-        fltShipX += fltShipSpeed;
+    if(blnRight == true) {
+      fltShipX += fltShipSpeed;
     }
     // Checks if player shoots, draws bullet and movement.
-    if (blnShoot){
+    if(blnShoot == true){
       drawBullet(fltBulletX, fltBulletY);
       fltBulletY -= 10;
-      // Checks if collision with alien, stop drawing bullet.
+
+      // Checks if collision with meteor, stop drawing bullet.
       if (fltBulletY == 320 && fltBulletX >= 25 && fltBulletX <= 75 || fltBulletY == 320 && fltBulletX >= 125 && fltBulletX <= 175 ||
-      fltBulletY == 320 && fltBulletX >= 225 && fltBulletX <= 275 || fltBulletY == 320 && fltBulletX >= 325 && fltBulletX <= 375 || fltBulletY == 320 && fltBulletX >= 425 && fltBulletX <= 475) {
+          fltBulletY == 320 && fltBulletX >= 225 && fltBulletX <= 275 || fltBulletY == 320 && fltBulletX >= 325 && fltBulletX <= 375 || fltBulletY == 320 && fltBulletX >= 425 && fltBulletX <= 475) {
         blnShoot = false; 
       }
     }
@@ -175,25 +182,23 @@ public class Sketch extends PApplet {
     // Check if alien bullet collides with ship, decrease number of lives
     for (int intRow = 0; intRow < intAlienRows; intRow++) {
       for (int intCol = 0; intCol < intAliensPerRow; intCol++) {
-        if (blnAlienAlive[intRow][intCol] && fltAlienBulletY >= fltShipY &&  fltAlienBulletY <= fltShipY + 50 && 
-        fltAlienBulletX >= fltShipX &&
-        fltAlienBulletX <= fltShipX + 50) {
-         
+        if (blnAlienAlive[intRow][intCol] && fltAlienBulletY >= fltShipY && fltAlienBulletY <= fltShipY + 50 
+            && fltAlienBulletX >= fltShipX && fltAlienBulletX <= fltShipX + 50) {
           intNumLives--;
-
           // Remove bullet from screen
           fltAlienBulletY = 0;
 
           // Check if game is over
           if (intNumLives <= 0) {
-             blnGameStart = false;
+            blnGameStart = false;
           }
         }
       }
+      
     }
 
     // Game Over draw end screen
-    if (intNumLives == 0 && intStart != 0){
+    if(intNumLives == 0 && intStart != 0){
       drawEndScreen(0, 0);      
     }
 
@@ -203,11 +208,51 @@ public class Sketch extends PApplet {
     }
   }
   
+  /**                                                       
+   * Called when a key is pressed. Handles keyboard input for controlling the ship.
+   */
+  public void keyPressed(){
+    // Control player movement with 'a' and 'd' keys
+    if(key == 'a') {
+      blnLeft = true;
+    } 
+    else if(key == 'd') {
+      blnRight = true;
+    }
+
+    if(key == ' '){ 
+      if(blnGameStart == false) {
+        resetGame();
+      } 
+      else{
+        blnShoot = true; 
+        fltBulletX = fltShipX + 22;
+        fltBulletY = fltShipY;
+      }
+    }
+    if(key == ' ' && intStart == 0){
+      intStart += 1; 
+    }
+  }
+
+  /**
+   * Called when a key is released. Handles keyboard input for controlling the player.
+   */
+  public void keyReleased(){
+    // Release player movement based on key release 
+    if(key == 'a') {
+      blnLeft = false;
+    } 
+    else if(key == 'd') {
+      blnRight = false;
+    }
+  }
+
   /**
    * Horizontally moves the aliens (right to left) based on their current direction.
    * If the aliens move near the edge of the screen, the direction changes.  
    */
-  public void moveAliens() {
+  public void moveAliens(){
     boolean blnMoveDown = false;
 
     // Move Aliens left or right
@@ -228,7 +273,7 @@ public class Sketch extends PApplet {
         if(fltAlienX[intRow][intCol] >= 450 - fltAlienMoveDistance || fltAlienX[intRow][intCol] <= fltAlienMoveDistance) {
           blnMoveDown = true;
         }
-        //Reached bottom end game
+        // Reached bottom end game
         if(fltAlienY[intRow][intCol] >= 350){
           intNumLives = 0;
         }
@@ -242,7 +287,7 @@ public class Sketch extends PApplet {
           fltAlienY[intRow][intCol] += 10; 
         }
       }
-        blnAlienDirection = !blnAlienDirection; 
+      blnAlienDirection = !blnAlienDirection; 
     }
   }
 
@@ -275,40 +320,13 @@ public class Sketch extends PApplet {
    * @param fltY the Y-coordinate to be checked. 
    * @return true if the coordinates are not between the meteors, false otherwise. 
    */
-  public boolean isBetweenMeteors(float fltX, float fltY) {
-    for (int i = 25; i <= width; i += 100) {
-      if (fltX > i && fltX < i + 50) {
+  public boolean isBetweenMeteors(float fltX, float fltY){
+    for(int i = 25; i <= width; i += 100){
+      if(fltX > i && fltX < i + 50){
         return false; 
       }
     }
     return true; 
-  }
-
-  /**                                                       
-   * Called when a key is pressed. Handles keyboard input for controlling the ship.
-   */
-  public void keyPressed() {
-    // Control player movement with AD keys
-    if(key == 'a') {
-      blnLeft = true;
-    } 
-    else if(key == 'd') {
-      blnRight = true;
-    }
-
-    if(key == ' '){ 
-      if(!blnGameStart) {
-        resetGame();
-      } 
-      else{
-        blnShoot = true; 
-        fltBulletX = fltShipX + 22;
-        fltBulletY = fltShipY;
-      }
-    }
-    if (key == ' '){
-      intStart += 1; 
-    }
   }
 
   /**
@@ -332,24 +350,11 @@ public class Sketch extends PApplet {
   }
 
   /**
-   * Called when a key is released. Handles keyboard input for controlling the player.
-   */
-  public void keyReleased() {
-    // Release player movement based on key release 
-    if(key == 'a') {
-      blnLeft = false;
-    } 
-    else if(key == 'd') {
-      blnRight = false;
-    }
-  }
-
-  /**
    * Draws a ship on the screen at the initialized coordinates.
    * @param fltShipX the X value of the ship.
    * @param fltShipY the Y value of the ship. 
    */
-  public void drawShip(float fltShipX, float fltShipY) {
+  public void drawShip(float fltShipX, float fltShipY){
     fltShipX = constrain(fltShipX, 0, width - 50);
     fltShipY = constrain(fltShipY, 0, height - 50);
     image(imgShip, fltShipX, fltShipY);
@@ -367,7 +372,7 @@ public class Sketch extends PApplet {
   /**
    * Calculations for drawing the player lives indicator on the screen. 
    */
-  public void drawLivesIndicator() {
+  public void drawLivesIndicator(){
     // Display "LIVES" to the left of the lives
     fill(255); 
     textSize(20); 
@@ -382,7 +387,7 @@ public class Sketch extends PApplet {
   /**
    * Calculations for drawing the score indicator on the screen. 
    */
-  public void drawScore() {
+  public void drawScore(){
     // Display "SCORE" to the left of the lives
     fill(255); 
     textSize(20); 
@@ -397,7 +402,7 @@ public class Sketch extends PApplet {
   /**
    * Calculations for drawing the meteors to the screen. 
    */
-  public void drawMeteor() {
+  public void drawMeteor(){
     for(int i = 25; i <= width; i += 100){
       image(imgMeteor, i, 275); 
     }
@@ -408,7 +413,7 @@ public class Sketch extends PApplet {
    * @param fltBulletX the X value of the bullet.
    * @param fltBulletY the Y value of the bullet.
    */
-  public void drawBullet(float fltBulletX, float fltBulletY) {
+  public void drawBullet(float fltBulletX, float fltBulletY){
     noStroke();
     fill(255); 
     rect(fltBulletX, fltBulletY, 3, 20);
@@ -453,7 +458,7 @@ public class Sketch extends PApplet {
    
     drawScore(); 
     
-    if (keyPressed && key == ' '){
+    if(keyPressed && key == ' '){
       resetGame();
     }
   }
@@ -469,9 +474,22 @@ public class Sketch extends PApplet {
     textSize(20); 
     text("PRESS SPACEBAR TO PLAY AGAIN", width - 375, 350);
 
-    if (keyPressed && key == ' '){
+    if(keyPressed && key == ' '){
       resetGame();
     }
   }
 
+  public void play1() {
+    try{
+      AudioInputStream aStream = AudioSystem.getAudioInputStream(new File("TopGun.wav").getAbsoluteFile());
+      Clip aClip = AudioSystem.getClip();
+      aClip.open(aStream);
+      aClip.start();
+      aClip.loop(Clip.LOOP_CONTINUOUSLY);
+    }
+    catch(Exception ex){
+      System.out.println("Error playing sound");
+      ex.printStackTrace();
+    }
+  }
 }
