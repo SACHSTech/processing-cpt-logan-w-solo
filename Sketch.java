@@ -258,7 +258,7 @@ public class Sketch extends PApplet {
     // Move Aliens left or right
     for(int intRow = 0; intRow < intAlienRows; intRow++) {
       for(int intCol = 0; intCol < intAliensPerRow; intCol++) {
-        if(blnAlienDirection) {
+        if(blnAlienDirection == true) {
           fltAlienX[intRow][intCol] += fltAlienMoveDistance; 
         } 
         else{
